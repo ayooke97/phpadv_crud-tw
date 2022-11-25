@@ -2,7 +2,46 @@
 @tailwind components;
 @tailwind utilities;
 
-
+@layer utilities{
 .text{
     @apply text-2xl;
 }
+
+.search-input{
+    @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full pl-10 p-2.5 
+}
+
+.search-input:focus{
+    @apply ring-blue-500 border-blue-500
+}
+
+.btn-search{
+    @apply p-2.5 ml-2 text-sm font-medium text-white bg-blue-700 rounded-lg border border-blue-700  
+}
+
+.btn-search:focus{
+    @apply ring-4 outline-none ring-blue-300
+}
+.btn-search:hover{
+    @apply bg-blue-800;
+}
+
+@media (prefers-color-scheme: dark){
+    .search-input{
+    @apply bg-gray-700 border-gray-600 placeholder-gray-400 text-white ;
+}
+    .search-input:focus{
+        @apply ring-blue-500 border-blue-500;
+    }
+    .btn-search{
+        @apply bg-blue-600 
+    }
+    .btn-search:focus{
+        @apply ring-blue-800;
+    }
+    .btn-search:hover{
+        @apply bg-blue-700;
+    }
+    }
+}
+
