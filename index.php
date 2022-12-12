@@ -1,7 +1,33 @@
 <!DOCTYPE html>
 
 <?php
+include_once 'config.php';
+if (!isset($_SESSION['email'])) {
+    // header('location:login.php');
+} else {
+    $user = getuser($_SESSION['email']);
+}
 
+$data = show();
+
+
+if (isset($_POST['buttonSort'])) {
+    $sort = $_POST['sort'];
+    // echo $sort;
+    $data = show($sort);
+    // var_dump($_GET);
+    // die;     
+}
+if (isset($_POST['btn_search'])) {
+    $search = $_POST['search'];
+    $data = search($search);
+    // var_dump($_POST);
+    // die;
+}
+
+if (isset($_POST['logout'])) {
+    logout();
+}
 ?>
 <html lang="en">
 
@@ -14,6 +40,7 @@
 </head>
 
 <body>
+    <?= var_dump(mysqli_fetch_assoc($data)) ?>
     <div class="w-full h-16 bg-neutral-900 text-white flex items-center justify-between px-4">
         <div>Bakti PM</div>
         <div class="w-3/4">
@@ -78,21 +105,31 @@
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                 <tr>
-                    <th scope="col" class="py-3 px-6">
-                        Judul Buku
+                    <th scope="col" class="py-3 px-6 text-center">
+                        No
                     </th>
                     <th scope="col" class="py-3 px-6">
                         <div class="flex items-center">
-                            Tahun Terbit
-                            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" class="ml-1 w-3 h-3" aria-hidden="true" fill="currentColor" viewBox="0 0 320 512">
+                            <a href="#" class="flex items-center csort" data-order="desc" id="judul_buku">Judul Buku
+                                <svg xmlns="http://www.w3.org/2000/svg" class="ml-1 w-3 h-3" aria-hidden="true" fill="currentColor" viewBox="0 0 320 512">
+                                    <path d="M27.66 224h264.7c24.6 0 36.89-29.78 19.54-47.12l-132.3-136.8c-5.406-5.406-12.47-8.107-19.53-8.107c-7.055 0-14.09 2.701-19.45 8.107L8.119 176.9C-9.229 194.2 3.055 224 27.66 224zM292.3 288H27.66c-24.6 0-36.89 29.77-19.54 47.12l132.5 136.8C145.9 477.3 152.1 480 160 480c7.053 0 14.12-2.703 19.53-8.109l132.3-136.8C329.2 317.8 316.9 288 292.3 288z" />
+                                </svg>
+                            </a>
+                        </div>
+                    </th>
+                    <th scope="col" class="py-3 px-6">
+                        <div class="flex items-center">
+
+                            <a href="#" class="flex items-center csort" data-order="desc" id="th_terbit_buku">
+                                Tahun Terbit<svg xmlns="http://www.w3.org/2000/svg" class="ml-1 w-3 h-3" aria-hidden="true" fill="currentColor" viewBox="0 0 320 512">
                                     <path d="M27.66 224h264.7c24.6 0 36.89-29.78 19.54-47.12l-132.3-136.8c-5.406-5.406-12.47-8.107-19.53-8.107c-7.055 0-14.09 2.701-19.45 8.107L8.119 176.9C-9.229 194.2 3.055 224 27.66 224zM292.3 288H27.66c-24.6 0-36.89 29.77-19.54 47.12l132.5 136.8C145.9 477.3 152.1 480 160 480c7.053 0 14.12-2.703 19.53-8.109l132.3-136.8C329.2 317.8 316.9 288 292.3 288z" />
                                 </svg></a>
                         </div>
                     </th>
                     <th scope="col" class="py-3 px-6">
                         <div class="flex items-center">
-                            Penerbit
-                            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" class="ml-1 w-3 h-3" aria-hidden="true" fill="currentColor" viewBox="0 0 320 512">
+
+                            <a href="#" class="flex items-center csort" data-order="desc" id="penerbit">Penerbit<svg xmlns="http://www.w3.org/2000/svg" class="ml-1 w-3 h-3" aria-hidden="true" fill="currentColor" viewBox="0 0 320 512">
                                     <path d="M27.66 224h264.7c24.6 0 36.89-29.78 19.54-47.12l-132.3-136.8c-5.406-5.406-12.47-8.107-19.53-8.107c-7.055 0-14.09 2.701-19.45 8.107L8.119 176.9C-9.229 194.2 3.055 224 27.66 224zM292.3 288H27.66c-24.6 0-36.89 29.77-19.54 47.12l132.5 136.8C145.9 477.3 152.1 480 160 480c7.053 0 14.12-2.703 19.53-8.109l132.3-136.8C329.2 317.8 316.9 288 292.3 288z" />
                                 </svg></a>
                         </div>
@@ -100,9 +137,6 @@
                     <th scope="col" class="py-3 px-6">
                         <div class="flex items-center">
                             Sinopsis
-                            <a href="#"><svg xmlns="http://www.w3.org/2000/svg" class="ml-1 w-3 h-3" aria-hidden="true" fill="currentColor" viewBox="0 0 320 512">
-                                    <path d="M27.66 224h264.7c24.6 0 36.89-29.78 19.54-47.12l-132.3-136.8c-5.406-5.406-12.47-8.107-19.53-8.107c-7.055 0-14.09 2.701-19.45 8.107L8.119 176.9C-9.229 194.2 3.055 224 27.66 224zM292.3 288H27.66c-24.6 0-36.89 29.77-19.54 47.12l132.5 136.8C145.9 477.3 152.1 480 160 480c7.053 0 14.12-2.703 19.53-8.109l132.3-136.8C329.2 317.8 316.9 288 292.3 288z" />
-                                </svg></a>
                         </div>
                     </th>
                     <th scope="col" class="py-3 px-6">
@@ -113,65 +147,105 @@
                     </th>
                 </tr>
             </thead>
-            <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Apple MacBook Pro 17"
-                    </th>
-                    <td class="py-4 px-6">
-                        Sliver
-                    </td>
-                    <td class="py-4 px-6">
-                        Laptop
-                    </td>
-                    <td class="py-4 px-6">
-                        $2999
-                    </td>
-                    <td class="py-4 px-6 text-center">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2">Edit</a>
-                        <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ml-2">Remove</a>
+            <tbody id="list">
+                <?php $i = 1;
+                if (mysqli_num_rows($data) > 0) :
+                    foreach ($data as $d) :
+                        $e_id_buku = base64_encode($d['id_buku']); ?>
 
-                    </td>
-                </tr>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                    <th scope="row" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Microsoft Surface Pro
+                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                            <th class="text-center"><?= $i ?></th>
+                            <th scope="col" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                <?= $d['judul_buku'] ?>
+                            </th>
+                            <td class="py-4 px-6">
+                                <?= $d['th_terbit_buku'] ?>
+                            </td>
+                            <td class="py-4 px-6">
+                                <?= $d['penerbit'] ?>
+                            </td>
+                            <td class="py-4 px-6">
+                                <?= $d['sinopsis'] ?>
+                            </td>
+                            <td class="py-4 px-6 text-center">
+                                <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2">Edit</a>
+                                <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ml-2">Remove</a>
+                            </td>
+                        </tr>
+                    <?php $i++;
+                    endforeach;
+                else : ?>
+                    <th>
+                    <td colspan="6" class="text-center">No Data Found!</td>
                     </th>
-                    <td class="py-4 px-6">
-                        White
-                    </td>
-                    <td class="py-4 px-6">
-                        Laptop PC
-                    </td>
-                    <td class="py-4 px-6">
-                        $1999
-                    </td>
-                    <td class="py-4 px-6 text-center">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2">Edit</a>
-                        <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ml-2">Remove</a>
-                    </td>
-                </tr>
-                <tr class="bg-white dark:bg-gray-800">
-                    <th scope="row" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                        Magic Mouse 2
-                    </th>
-                    <td class="py-4 px-6">
-                        Black
-                    </td>
-                    <td class="py-4 px-6">
-                        Accessories
-                    </td>
-                    <td class="py-4 px-6">
-                        $99
-                    </td>
-                    <td class="py-4 px-6 text-center">
-                        <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline mr-2">Edit</a>
-                        <a href="#" class="font-medium text-red-600 dark:text-red-500 hover:underline ml-2">Remove</a>
-                    </td>
-                </tr>
+                <?php endif; ?>
+
+
             </tbody>
         </table>
     </div>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $(document).on('click', ".csort", function(e) {
+                e.preventDefault();
+                let colname = $(this).attr('id');
+                let sort = $(this).data('order');
+                $.ajax({
+                    url: "getdata.php",
+                    method: "POST",
+                    data: {
+                        colname: colname,
+                        order: sort
+                    },
+                    success: function(data) {
+                        $("#list").html(data);
+                        console.log(data);
+                    }
+                });
+            });
+            $("#search").keyup(function() {
+                let search = $("#search").val();
+                $.ajax({
+                    type: "GET",
+                    dataType: "html",
+                    url: "search.php?search=" + search,
+                    success: function(response) {
+                        $("#list").html(response);
+                    }
+                });
+            });
+            $("#del").click(function() {
+                let id = $("#id_del").val();
+                console.log(id);
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    data: {
+                        id: id,
+                    },
+                    url: 'remove.php',
+                    success: function(response) {
+                        $("#b-list").html(response);
+                    }
+
+                });
+            });
+            $("#edit").click(function() {
+                let search = $("#edit").val();
+                console.log(search);
+                $.ajax({
+                    type: "POST",
+                    dataType: "html",
+                    url: "edit.php",
+                    success: function(response) {
+                        $("#b-list").html(response);
+                    }
+                });
+            });
+
+        })
+    </script>
 </body>
 
 </html>
