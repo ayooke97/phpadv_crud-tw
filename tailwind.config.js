@@ -1,8 +1,11 @@
+const autoprefixer = require("autoprefixer");
+const { default: postcss } = require("postcss");
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ["./**/*.{html,js,php}"],
+  content: ["./public/src/**/*.{html,js,php}"],
   theme: {
     extend: {},
   },
-  plugins: [],
+  plugins: [postcss, autoprefixer],
 };
