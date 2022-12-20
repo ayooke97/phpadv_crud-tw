@@ -27,7 +27,7 @@ if (isset($_POST['submit'])) {
     <div class="container">
         <div class="card">
             <div class="card-body">
-                <form action="" method="post" class="">
+                <form actionc="" method="post" class="">
                     <div class="form-group">
                         <label for="Judulbuku">Judul Buku</label>
                         <input type="text" name="judulbuku" value="<?= $result['judul_buku'] ?>" class="form-control">

@@ -17,14 +17,11 @@ try {
     echo $e->getMessage();
 }
 
-function show($data = "judul_buku")
+function show($query)
 {
     global $conn;
-    if ($data == "") {
-        $data = "judul_buku";
-    }
-    $query = mysqli_query($conn, "SELECT * FROM buku");
-    return $query;
+    $data = mysqli_query($conn, $query);
+    return $data;
 }
 
 
@@ -32,13 +29,35 @@ function create($data)
 
 
 {
+    global $conn;
     $judulbuku = $data["judulbuku"];
     $penerbit = $data["penerbit"];
     $th_terbit = $data["th_terbit"];
     $sinopsis = $data["sinopsis"];
-    global $conn;
-    $query = mysqli_query($conn, "INSERT INTO buku (judul_buku,penerbit,sinopsis,th_terbit_buku) VALUES ('$judulbuku','$penerbit','$sinopsis','$th_terbit')");
-    return $query;
+    $cover = $_FILES["cover"]["name"];
+    // $cover = $data["cover_buku"];
+    // echo '<pre>';
+    // var_dump($_FILES);
+    // die;
+    if ($cover != "") {
+        $allowed_ext = ["jpg", "png"];
+        $x = explode('.', $cover);
+        $ext = strtolower(end($x));
+        $file_temp = $_FILES['cover']['tmp_name'];
+        $random_name = rand(1, 999) . '-' . $cover;
+        $size = $_FILES["cover"]["size"];
+        if ($size > 5242880) {
+            echo "<script>alert('File terlalu besar')</script>";
+            echo '<script>window.location.replace("create.php");</script>';
+        } else {
+
+            if (in_array($ext, $allowed_ext) === true) {
+                move_uploaded_file($file_temp, "img/" . $random_name);
+                $query = mysqli_query($conn, "INSERT INTO buku (judul_buku,penerbit,sinopsis,th_terbit_buku,cover_buku) VALUES ('$judulbuku','$penerbit','$sinopsis','$th_terbit','$random_name')");
+                header('location:index.php');
+            }
+        }
+    }
 }
 
 function edit($data, $id)
@@ -99,16 +118,24 @@ function register($data)
 
 function login($info)
 {
-    $username = $info['username'];
-    $pass = $info['pass'];
+    $username = $info['email'];
+    $pass = $info['password'];
     global $conn;
     $query = mysqli_query($conn, "SELECT * FROM user WHERE email='$username' OR username='$username'");
     if (mysqli_num_rows($query) > 0) {
         $row = mysqli_fetch_assoc($query);
         $passcheckcond =  password_verify($pass, $row['password']);
         if ($passcheckcond) {
+            if (isset($info['remember'])) {
+                $cookie_name = "login";
+                $cookie_value = $row['email'];
+                setcookie($cookie_name, $cookie_value, time() + (60 * 60 * 24), "/");
+            }
+
             $_SESSION['email'] = $row['email'];
             header("location:index.php");
+        } else {
+            echo "<script>alert('Password salah')</script>";
         }
         // var_dump($passcheckcond);
         // die;
@@ -146,12 +173,14 @@ function search($data)
 {
 
     global $conn;
-    $query = mysqli_query($conn, "SELECT * FROM buku WHERE penerbit LIKE '%{$data}%' OR sinopsis LIKE '%{$data}%' OR judul_buku LIKE '%{$data}%' OR id_buku LIKE '%{$data}%'");
+    $query = mysqli_query($conn, "SELECT * FROM buku WHERE penerbit LIKE '%{$data}%' OR th_terbit_buku LIKE '%{$data}%' OR judul_buku LIKE '%{$data}%' OR id_buku LIKE '%{$data}%'");
     return $query;
 }
 
 function logout()
 {
+    setcookie("login", "", time() - 3600, "/");
+    unset($_COOKIE['login']);
     $_SESSION[] = '';
     session_destroy();
     session_unset();
