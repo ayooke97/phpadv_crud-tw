@@ -3,10 +3,10 @@
 <?php
 include_once 'config.php';
 
-var_dump($_COOKIE);
 // var_dump($_SESSION);
 if (!isset($_SESSION['email'])) {
     // header('location:login.php');
+
 } else {
     $user = getuser($_SESSION['email']);
 }

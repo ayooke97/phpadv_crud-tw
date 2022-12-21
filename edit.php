@@ -3,7 +3,6 @@ include_once 'config.php';
 $id =  base64_decode($_GET['id_buku'], 1);
 $query = mysqli_query($conn, "SELECT * FROM buku WHERE id_buku=$id");
 $result = mysqli_fetch_assoc($query);
-// var_dump($result);
 
 if (isset($_POST['submit'])) {
     edit($_POST, $id);
@@ -27,7 +26,7 @@ if (isset($_POST['submit'])) {
     <div class="container">
         <div class="card">
             <div class="card-body">
-                <form actionc="" method="post" class="">
+                <form actionc="" method="post" class="" enctype="multipart/form-data">
                     <div class="form-group">
                         <label for="Judulbuku">Judul Buku</label>
                         <input type="text" name="judulbuku" value="<?= $result['judul_buku'] ?>" class="form-control">
@@ -36,10 +35,19 @@ if (isset($_POST['submit'])) {
                         <label for="penerbit">Penerbit</label>
                         <input type="text" name="penerbit" value="<?= $result['penerbit'] ?>" class="form-control">
                     </div>
+                    <div class="form-group">
                     <label for="th_terbit">Tahun</label>
                     <input type="text" name="th_terbit" value="<?= $result['th_terbit_buku'] ?>" class="form-control">
+                    </div>
+                    <div class="form-group">
                     <label for="sinopsis">Sinopsis</label>
                     <textarea name="sinopsis" id="" cols="" rows="10" class="form-control"><?= $result['sinopsis'] ?></textarea>
+                    </div>
+                    <div class="form-group">
+                    <label for="cover" name="" class="white">Cover</label>
+                    <img src="./img/<?= $result['cover_buku'] ?>" alt="" width="100px" height="100px">
+                    <input type="file" name="cover" class="">
+                    </div>
                     <button class="mt-4 btn btn-success btn-block" type="submit" name="submit">Submit</button>
                 </form>
             </div>

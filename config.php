@@ -6,7 +6,9 @@ $username = 'root';
 $pass = '';
 
 $conn = mysqli_connect($host, $username, $pass, $db);
-
+if (isset($_COOKIE['login'])){
+    $_SESSION['email'] = $_COOKIE['login'];
+}
 try {
     if ($conn) {
         // echo '<p class = "fw-semibold">Koneksi berhasil</p>';
@@ -62,16 +64,37 @@ function create($data)
 
 function edit($data, $id)
 {
-    // var_dump($id);
+    // echo '<pre>';
+    // var_dump($_FILES);
     // die;
-
+    
+    global $conn;
     $judulbuku = $data["judulbuku"];
     $penerbit = $data["penerbit"];
     $th_terbit = $data["th_terbit"];
     $sinopsis = $data["sinopsis"];
-    global $conn;
-    $query = mysqli_query($conn, "UPDATE buku SET judul_buku = '{$judulbuku}', penerbit = '{$penerbit}', sinopsis = '{$sinopsis}', th_terbit_buku = {$th_terbit} WHERE id_buku=$id");
-    return $query;
+    $cover = $_FILES["cover"]["full_path"];
+
+    if ($cover != "") {
+        $allowed_ext = ["jpg", "png"];
+        $x = explode('.', $cover);
+        $ext = strtolower(end($x));
+        $file_temp = $_FILES['cover']['tmp_name'];
+        $random_name = rand(1, 999) . '-' . $cover;
+        $size = $_FILES["cover"]["size"];
+        if ($size > 5242880) {
+            echo "<script>alert('File terlalu besar')</script>";
+            echo '<script>window.location.replace("create.php");</script>';
+        } else {
+
+            if (in_array($ext, $allowed_ext) === true) {
+                move_uploaded_file($file_temp, "img/" . $random_name);
+                $query = mysqli_query($conn, "UPDATE buku SET judul_buku = '{$judulbuku}', penerbit = '{$penerbit}', sinopsis = '{$sinopsis}', th_terbit_buku = '{$th_terbit}', cover_buku = '{$random_name}' WHERE id_buku = $id");
+                header('location:index.php');
+            }
+        }
+    }
+    // return $query;
 }
 
 function remove($id)
